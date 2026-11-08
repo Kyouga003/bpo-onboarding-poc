@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Scenario F: Iloilo Business Park BPO Automation Portal</title>
+    <style>
+        :root { --navy:#003366; --blue:#0066cc; --bg:#f0f2f5; --card:#fff; --muted:#667085; --ok:#155724; --okbg:#d4edda; --warn:#92400e; --warnbg:#fef3c7; --bad:#991b1b; --badbg:#fee2e2; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: var(--bg); color: #1f2937; }
+        .header { background: linear-gradient(135deg,var(--navy),#00509e); color: white; padding: 22px; border-radius: 10px; margin-bottom: 18px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+        .header h2 { margin: 0 0 6px; }
+        .header p { margin: 0; opacity: .95; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 14px; margin-bottom: 18px; }
+        .card { background: var(--card); padding: 18px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+        .card h3 { margin: 0 0 10px; color: var(--navy); font-size: 16px; }
+        .metric { font-size: 28px; font-weight: 700; color: var(--blue); }
+        .subtle { color: var(--muted); font-size: 13px; margin-top: 4px; }
+        .grid-2 { display:grid; grid-template-columns: 1.3fr 1fr; gap: 14px; margin-bottom: 18px; }
+        form.provision { display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 10px; }
+        input, select { width:100%; padding: 10px; border: 1px solid #ccd4e0; border-radius: 6px; background:#fff; }
+        button { padding: 10px 12px; background: #198754; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { filter: brightness(.97); }
+        .btn-update { background: var(--blue); }
+        .btn-delete { background: #dc3545; }
+        .btn-monitor { background: #6f42c1; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.08); margin-bottom: 18px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e7ebf0; font-size: 13px; vertical-align: top; }
+        th { background: #004080; color: white; }
+        tr:hover { background-color: #f8fafc; }
+        code { background:#f3f4f6; padding:2px 5px; border-radius:4px; }
+        .badge { display:inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-ok { background: var(--okbg); color: var(--ok); }
+        .badge-warn { background: var(--warnbg); color: var(--warn); }
+        .badge-bad { background: var(--badbg); color: var(--bad); }
+        .actions form { margin-bottom: 6px; }
+        .inline-edit { display:grid; grid-template-columns: 1fr 1fr auto; gap: 5px; }
+        .audit-list { list-style: none; padding: 0; margin: 0; max-height: 260px; overflow-y: auto; }
+        .audit-item { padding: 9px 0; border-bottom: 1px solid #eee; font-size: 13px; line-height: 1.35; }
+        .pill-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+        .pill { background:#eef6ff; color:#0b3b75; border:1px solid #cfe3ff; border-radius:999px; padding:4px 10px; font-size:12px; font-weight:600; }
+        @media (max-width: 1100px) { .grid-2, form.provision { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Iloilo Business Park BPO — Agent Onboarding & Remote Work Portal</h2>
+        <p>Scenario F: automated team onboarding, secure remote access, consistent 300-switch configuration, call-quality monitoring, and audit logging.</p>
+        <div class="pill-row">
+            <span class="pill">100 hires/month workflow</span>
+            <span class="pill">Work-from-home shifts</span>
+            <span class="pill">Webex + VPN/Zero Trust</span>
+            <span class="pill">Client security audit trail</span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="card"><h3>Total Agents Managed</h3><div class="metric">{{ total_agents }}</div><div class="subtle">Current local roster</div></div>
+        <div class="card"><h3>Remote VPN / Zero Trust</h3><div class="metric">{{ remote_vpn_count }}</div><div class="subtle">Home-based agents secured</div></div>
+        <div class="card"><h3>Switch Fleet Coverage</h3><div class="metric">{{ switches_covered }} / {{ switch_count }}</div><div class="subtle">Access switches with consistent profiles</div></div>
+        <div class="card"><h3>Average Latency</h3><div class="metric">{{ avg_latency }} ms</div><div class="subtle">Remote/on-site network sample</div></div>
+        <div class="card"><h3>Average Call Quality</h3><div class="metric">{{ avg_mos }}</div><div class="subtle">MOS score across active agents</div></div>
+        <div class="card"><h3>Calls to Investigate</h3><div class="metric">{{ degraded_calls }}</div><div class="subtle">Acceptable or degraded samples</div></div>
+    </div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h3>Onboard New Agent Team Member</h3>
+            <form class="provision" action="/add" method="POST">
+                <input type="text" name="name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Agent Email / Webex Account" required>
+                <input type="text" name="team_name" placeholder="Team Name (e.g., Wave 11)" required>
+                <select name="intake_batch">
+                    <option>November 2026 Intake</option>
+                    <option>December 2026 Intake</option>
+                    <option>January 2027 Intake</option>
+                </select>
+                <select name="work_mode">
+                    <option value="Remote VPN">Remote VPN (Work-from-Home)</option>
+                    <option value="On-Site LAN">On-Site Office Shift</option>
+                </select>
+                <select name="department">
+                    <option value="Customer Support">Customer Support</option>
+                    <option value="Technical Care">Technical Care</option>
+                    <option value="Financial Services">Financial Services</option>
+                </select>
+                <button type="submit" style="grid-column: 1 / -1;">Provision Agent: Network + Webex + VPN/Zero Trust</button>
+            </form>
+            <div class="subtle">Duplicate emails are blocked and recorded in the audit log. If no Webex token is configured, provisioning falls back to a local simulation so the demo still works.</div>
+        </div>
+        <div class="card">
+            <h3>Automation & Compliance Coverage</h3>
+            <ul class="audit-list" style="max-height:none;">
+                <li class="audit-item"><strong>Team onboarding:</strong> creates network access, assigns a Webex space per team/intake, and provisions collaboration access.</li>
+                <li class="audit-item"><strong>Secure remote access:</strong> remote agents receive VPN + Zero Trust policy status; on-site agents receive controlled LAN access.</li>
+                <li class="audit-item"><strong>Switch consistency:</strong> each agent receives a standardized access profile across a 300-switch fleet (VLAN/policy by work mode).</li>
+                <li class="audit-item"><strong>Monitoring:</strong> latency, jitter, packet loss, and MOS samples can be refreshed per agent.</li>
+                <li class="audit-item"><strong>Audit logs:</strong> onboarding, updates, monitoring, rejections, and offboarding are recorded with timestamps and actor.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card" style="padding:0; margin-bottom:18px;">
+        <div style="padding:18px 18px 0;"><h3>Active Agent Directory & Automated Provisions</h3></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Agent / Team</th>
+                    <th>Work Model</th>
+                    <th>Switch Configuration</th>
+                    <th>Secure Access & Webex</th>
+                    <th>Call Quality</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agent in agents %}
+                <tr>
+                    <td>{{ agent.id }}</td>
+                    <td><strong>{{ agent.name }}</strong><br><small>{{ agent.email }}</small><br><small>{{ agent.team_name }} · {{ agent.department }}</small></td>
+                    <td><span class="badge badge-info">{{ agent.work_mode }}</span><br><small>{{ agent.intake_batch }}</small></td>
+                    <td><code>{{ agent.switch_config }}</code><br><small>300-switch standardized profile</small></td>
+                    <td>
+                        <span class="badge badge-ok">{{ agent.vpn_status }}</span><br>
+                        <small>Webex: {{ agent.webex_status }}</small><br>
+                        <small>Space: {{ agent.webex_space }}</small>
+                    </td>
+                    <td>
+                        {% set q = agent.call_quality or '' %}
+                        <span class="badge {% if 'Optimal' in q %}badge-ok{% elif 'Acceptable' in q %}badge-warn{% else %}badge-bad{% endif %}">{{ agent.call_quality }}</span><br>
+                        <small>Latency {{ agent.latency_ms }}ms · Jitter {{ agent.jitter_ms }}ms · Loss {{ agent.packet_loss_pct }}%</small>
+                    </td>
+                    <td class="actions">
+                        <form action="/update/{{ agent.id }}" method="POST" class="inline-edit">
+                            <select name="work_mode">
+                                <option value="Remote VPN" {% if agent.work_mode == 'Remote VPN' %}selected{% endif %}>Remote VPN</option>
+                                <option value="On-Site LAN" {% if agent.work_mode == 'On-Site LAN' %}selected{% endif %}>On-Site LAN</option>
+                            </select>
+                            <input type="text" name="team_name" value="{{ agent.team_name }}" placeholder="Team">
+                            <input type="hidden" name="department" value="{{ agent.department }}">
+                            <button type="submit" class="btn-update">Save</button>
+                        </form>
+                        <form action="/refresh-metrics/{{ agent.id }}" method="POST"><button type="submit" class="btn-monitor" style="width:100%;">Refresh Quality Sample</button></form>
+                        <form action="/delete/{{ agent.id }}" method="POST"><button type="submit" class="btn-delete" style="width:100%;">Offboard Agent</button></form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" style="text-align:center; color:#667085; padding:24px;">No agents onboarded yet. Use the form above to add your first team member.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Security & Client Audit Logs</h3>
+        <ul class="audit-list">
+            {% for log in audit_logs %}
+            <li class="audit-item">
+                <strong>[{{ log.timestamp }}]</strong> <span style="color:#0066cc;">{{ log.action }}</span> | Actor: {{ log.actor or 'Operations Admin' }} | Agent: <em>{{ log.agent_email }}</em><br>
+                {{ log.details }}<br><small style="color:#667085;">Compliance: {{ log.compliance or 'RA 10173 / Client Security Policy' }}</small>
+            </li>
+            {% else %}
+            <li class="audit-item">No audit logs recorded yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
